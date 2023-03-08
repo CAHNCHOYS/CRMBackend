@@ -15,7 +15,7 @@ export const registerUser = (req, res) => {
     (error, results) => {
       if (!error) {
         if (results.length > 0) {
-          res.status(500).json({ alreadyRegistered: true });
+          res.status(500).json({ isUserAlreadyRegistered: true });
         } else {
           console.log(password);
           const salt = bcrypt.genSaltSync(5);
@@ -26,7 +26,7 @@ export const registerUser = (req, res) => {
             `INSERT INTO users (name, email, password, city) VALUES ('${name}','${email}', '${hiddenPassword}', '${city}')`,
             (error, results) => {
               if (!error) {
-                res.json({ success: true });
+                res.json({ isSuccess: true });
               } else {
                 res.json({ error: error.message });
               }
