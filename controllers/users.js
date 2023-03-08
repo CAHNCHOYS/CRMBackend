@@ -9,7 +9,7 @@ const __dirname = path.resolve();
 export const registerUser = (req, res) => {
   console.log(req.body);
 
-  const { name, email, password, city } = req.body;
+  const { name, email, password, country } = req.body;
   pool.query(
     `SELECT name, email from users WHERE email = '${req.body.email}'`,
     (error, results) => {
@@ -23,12 +23,12 @@ export const registerUser = (req, res) => {
           console.log(hiddenPassword);
 
           pool.query(
-            `INSERT INTO users (name, email, password, country) VALUES ('${name}','${email}', '${hiddenPassword}', '${city}')`,
+            `INSERT INTO users (name, email, password, country) VALUES ('${name}','${email}', '${hiddenPassword}', '${country}')`,
             (error, results) => {
               if (!error) {
                 res.json({ isSuccess: true });
               } else {
-                res.json({ error: error.message });
+                res.json({ errorMessage: error.message });
               }
             }
           );
@@ -69,7 +69,7 @@ export const loginUser = (req, res) => {
         }
       } else {
         console.log(error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ errorMessage: error.message });
       }
     }
   );
