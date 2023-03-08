@@ -99,11 +99,11 @@ export const updatePublicUserInfo = (req, res) => {
   console.log(path.resolve(__dirname, "Images", "UserAvatars"));
 
   avatar.mv(
-    path.resolve("Images", "UserAvatars", `user${id}`) + avatarName,
+    path.resolve(__dirname,"Images", "UserAvatars", `user${id}`) + avatarName,
     function (error) {
       if (error) {
         console.log(error);
-        res.json({ error });
+        res.json({ errorMessage: error });
       } else {
         pool.query(
           `UPDATE users SET name = '${name}', email = '${email}', city = '${city}', avatar = '${insertName}' WHERE users.id = ${+id}`,
