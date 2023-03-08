@@ -99,7 +99,7 @@ export const updatePublicUserInfo = (req, res) => {
   console.log(path.resolve(__dirname, "Images", "UserAvatars"));
 
   avatar.mv(
-    path.resolve(__dirname,"Images", "UserAvatars", `user${id}`) + avatarName,
+    path.resolve("/","Images", "UserAvatars", `user${id}`) + avatarName,
     function (error) {
       if (error) {
         console.log(error);
