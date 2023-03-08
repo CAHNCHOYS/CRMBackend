@@ -23,7 +23,7 @@ export const registerUser = (req, res) => {
           console.log(hiddenPassword);
 
           pool.query(
-            `INSERT INTO users (name, email, password, city) VALUES ('${name}','${email}', '${hiddenPassword}', '${city}')`,
+            `INSERT INTO users (name, email, password, country) VALUES ('${name}','${email}', '${hiddenPassword}', '${city}')`,
             (error, results) => {
               if (!error) {
                 res.json({ isSuccess: true });
@@ -33,7 +33,7 @@ export const registerUser = (req, res) => {
             }
           );
         }
-      } else res.status(500).json({ error: error.message });
+      } else res.status(500).json({ errorMessage: error.message });
     }
   );
 };
@@ -43,7 +43,7 @@ export const loginUser = (req, res) => {
   console.log(req.body);
 
   pool.query(
-    `SELECT id, name, email, password, city, avatar from users WHERE email = '${email}' `,
+    `SELECT id, name, email, password, country, avatar from users WHERE email = '${email}' `,
     (error, results) => {
       if (!error) {
         if (results.length === 0) {
