@@ -1,6 +1,6 @@
 import express, { json } from "express";
 import cors from 'cors';
-import { router } from "./router/index.js";
+import { router } from "./router/routes.js";
 import  path from 'path';
 import fileUpload from "express-fileupload"
 
