@@ -120,7 +120,7 @@ export const updatePublicUserInfo = (req, res) => {
       function (error) {
         if (error) {
           console.log(error);
-          res.json({ error: error, path: __dirname });
+          res.status(500).json({ error: error  });
         } else {
           pool.query(
             `UPDATE users SET name = '${name}', email = '${email}', country = '${country}', avatar = '${insertName}' WHERE users.id = ${+id}`,

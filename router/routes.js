@@ -1,39 +1,32 @@
 import { Router } from "express";
 
-import {
-  registerUser,
-  loginUser,
-  verifyUserToken,
-  updatePublicUserInfo,
-  updateUserToken,
-  updateUserPassword,
-  deleteUserAccount,
-} from "../controllers/users.js";
 
-import {getAllUserProducts, deleteProduct, getProductsCategories, updateUserProduct, addUserProduct} from "../controllers/products.js";
+import * as UserController from "../controllers/users.js";
+
+import * as ProductController from "../controllers/products.js";
 
 
 const router = Router();
 
-router.get("/api/AllUserProducts/:user_id", getAllUserProducts);
-router.get("/api/ProductCategories",getProductsCategories);
+router.get("/api/AllUserProducts/:user_id", ProductController.getAllUserProducts);
+router.get("/api/ProductCategories", ProductController.getProductsCategories);
 
 
 
-router.post("/api/Registration", registerUser);
-router.post("/api/Login", loginUser);
-router.post("/api/VerifyToken", verifyUserToken);
-router.post("/api/AddProduct", addUserProduct);
+router.post("/api/Registration", UserController.registerUser);
+router.post("/api/Login", UserController.loginUser);
+router.post("/api/VerifyToken", UserController.verifyUserToken);
+router.post("/api/AddProduct", ProductController.addUserProduct);
 
 
-router.patch("/api/UpdateToken", updateUserToken);
-router.patch("/api/UpdateUserInfo", updatePublicUserInfo);
-router.patch("/api/UpdateUserPassword", updateUserPassword);
-router.patch("/api/UpdateUserProduct", updateUserProduct);
+router.patch("/api/UpdateToken", UserController.updateUserToken);
+router.patch("/api/UpdateUserInfo", UserController.updatePublicUserInfo);
+router.patch("/api/UpdateUserPassword", UserController.updateUserPassword);
+router.patch("/api/UpdateUserProduct", ProductController.updateUserProduct);
 
 
-router.delete("/api/DeleteAccount/:user_id", deleteUserAccount);
-router.delete("/api/DeleteProduct/:product_id", deleteProduct);
+router.delete("/api/DeleteAccount/:user_id", UserController.deleteUserAccount);
+router.delete("/api/DeleteProduct/:product_id", ProductController.deleteProduct);
 
 
 export { router };
