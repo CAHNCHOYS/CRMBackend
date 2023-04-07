@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import path from "path";
 
 const JWT_KEY = "CRMApp";
+
 const __dirname = path.resolve();
 
 export const registerUser = (req, res) => {
@@ -58,8 +59,8 @@ export const loginUser = (req, res) => {
               .status(400)
               .json({ error: "Неверный пароль, повторите попытку!" });
           } else {
-            let token = jwt.sign({ ...user }, JWT_KEY, { expiresIn: "2h" });
-            res.json({ userTokenData: { user, token } });
+            let token = jwt.sign({ id: user.id }, JWT_KEY, { expiresIn: "2h" });
+            res.json({ user, token });
           }
         }
       } else {
@@ -70,36 +71,32 @@ export const loginUser = (req, res) => {
   );
 };
 
-export const verifyUserToken = (req, res) => {
-  const token = req.body.token;
+export const getUserByToken = (req, res) => {
+  try {
+    const token = req.headers["authorization"].split(" ")[1];
 
-  jwt.verify(token, JWT_KEY, function (err, decoded) {
-    if (err) {
-      res.status(401).json({ error: err.message });
-    } else {
-      res.json({ userData: decoded });
-    }
-  });
-};
-
-export const updateUserToken = (req, res) => {
-  const { id } = req.body;
-
-  pool.query(
-    `SELECT id, name, email, password, country, avatar from users WHERE id = '${+id}'`,
-    (error, results) => {
-      if (!error) {
-        let user = results[0];
-        console.log(user);
-
-        let token = jwt.sign({ ...user }, JWT_KEY, { expiresIn: "2h" });
-        res.json({ userTokenData: { user, token } });
+    jwt.verify(token, JWT_KEY, function (err, decoded) {
+      if (err) {
+        res.status(401).json({ error: err.message });
       } else {
-        console.log(error);
-        res.status(500).json({ error: error.message });
+
+        pool.query(
+          `SELECT id, name, email, password, country, avatar from users WHERE users.id = '${decoded.id}'`,
+          (error, results) => {
+            if (!error) {
+              res.json({ user: results[0] });
+            } else {
+              console.log(error);
+              res.status(500).json({ error: error.message });
+            }
+          }
+        );
       }
-    }
-  );
+    });
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
 
 export const updatePublicUserInfo = (req, res) => {
@@ -109,8 +106,6 @@ export const updatePublicUserInfo = (req, res) => {
     const avatar = req.files.avatar;
     const avatarName = avatar.name;
 
-    console.log(avatar);
-    console.log(avatarName);
     const insertName = `user${id}` + avatarName;
     console.log(path.resolve(__dirname, "Images", "UserAvatars"));
 
@@ -120,7 +115,7 @@ export const updatePublicUserInfo = (req, res) => {
       function (error) {
         if (error) {
           console.log(error);
-          res.status(500).json({ error: error  });
+          res.status(500).json({ error: error });
         } else {
           pool.query(
             `UPDATE users SET name = '${name}', email = '${email}', country = '${country}', avatar = '${insertName}' WHERE users.id = ${+id}`,
@@ -164,7 +159,8 @@ export const updateUserPassword = (req, res) => {
               } else res.status(500).json({ error: error.message });
             }
           );
-        } else res.status(400).json({ error: "Неверный старый пароль от аккаунта" });
+        } else
+          res.status(400).json({ error: "Неверный старый пароль от аккаунта" });
       } else res.status(500).json({ error: error.message });
     }
   );
