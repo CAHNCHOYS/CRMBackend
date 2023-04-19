@@ -3,6 +3,10 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import path from "path";
 
+import dotenv from "dotenv";
+
+dotenv.config();
+
 const JWT_KEY = "CRMApp";
 
 const __dirname = path.resolve();
@@ -59,7 +63,9 @@ export const loginUser = (req, res) => {
               .status(400)
               .json({ error: "Неверный пароль, повторите попытку!" });
           } else {
-            let token = jwt.sign({ id: user.id }, JWT_KEY, { expiresIn: "2h" });
+            let token = jwt.sign({ id: user.id }, process.env.JWT_KEY, {
+              expiresIn: "2h",
+            });
             res.json({ user, token });
           }
         }
@@ -75,11 +81,13 @@ export const getUserByToken = (req, res) => {
   try {
     const token = req.headers["authorization"].split(" ")[1];
 
-    jwt.verify(token, JWT_KEY, function (err, decoded) {
+    jwt.verify(token, process.env.JWT_KEY, function (err, decoded) {
       if (err) {
-        res.status(401).json({ error: err.message });
+        res.status(401).json({
+          error:
+            "Токен не валиден! Пароль был обновлен, но при следующем заходе придется вводить данные заново",
+        });
       } else {
-
         pool.query(
           `SELECT id, name, email, password, country, avatar from users WHERE users.id = '${decoded.id}'`,
           (error, results) => {
@@ -93,7 +101,6 @@ export const getUserByToken = (req, res) => {
         );
       }
     });
-
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -101,16 +108,16 @@ export const getUserByToken = (req, res) => {
 
 export const updatePublicUserInfo = (req, res) => {
   try {
-    const { name, email, country, id } = req.body;
-
+    const { name, email, country } = req.body;
+    const userId = req.userId;
     const avatar = req.files.avatar;
     const avatarName = avatar.name;
 
-    const insertName = `user${id}` + avatarName;
+    const insertName = `user${userId}` + avatarName;
     console.log(path.resolve(__dirname, "Images", "UserAvatars"));
 
     avatar.mv(
-      path.resolve(__dirname, "Images", "UserAvatars", `user${id}`) +
+      path.resolve(__dirname, "Images", "UserAvatars", `user${userId}`) +
         avatarName,
       function (error) {
         if (error) {
@@ -118,7 +125,7 @@ export const updatePublicUserInfo = (req, res) => {
           res.status(500).json({ error: error });
         } else {
           pool.query(
-            `UPDATE users SET name = '${name}', email = '${email}', country = '${country}', avatar = '${insertName}' WHERE users.id = ${+id}`,
+            `UPDATE users SET name = '${name}', email = '${email}', country = '${country}', avatar = '${insertName}' WHERE users.id = ${userId}`,
             (error, results) => {
               if (!error) {
                 res.json({ isInfoUpdated: true });
@@ -136,11 +143,12 @@ export const updatePublicUserInfo = (req, res) => {
 };
 
 export const updateUserPassword = (req, res) => {
-  const { oldPassword, newPassword, id } = req.body;
-  console.log(oldPassword, newPassword, id);
+  const { oldPassword, newPassword } = req.body;
+
+  const userId = req.userId;
 
   pool.query(
-    `SELECT id, name, email, country, password, avatar from users WHERE id = ${+id}`,
+    `SELECT id, name, email, country, password, avatar from users WHERE id = ${userId}`,
     (error, results) => {
       if (!error) {
         let userPassword = results[0].password;
@@ -152,7 +160,7 @@ export const updateUserPassword = (req, res) => {
           );
 
           pool.query(
-            `UPDATE users SET password = '${hiddenPassword}' WHERE id = ${+id}`,
+            `UPDATE users SET password = '${hiddenPassword}' WHERE id = ${+userId}`,
             (error, results) => {
               if (!error) {
                 res.json({ isInfoUpdated: true });
