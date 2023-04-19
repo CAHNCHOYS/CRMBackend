@@ -7,7 +7,6 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const JWT_KEY = "CRMApp";
 
 const __dirname = path.resolve();
 
