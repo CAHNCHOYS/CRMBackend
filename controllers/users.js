@@ -7,7 +7,6 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-
 const __dirname = path.resolve();
 
 export const registerUser = (req, res) => {
@@ -80,11 +79,11 @@ export const getUserByToken = (req, res) => {
   try {
     const token = req.headers["authorization"].split(" ")[1];
 
+    console.log(token);
     jwt.verify(token, process.env.JWT_KEY, function (err, decoded) {
       if (err) {
         res.status(401).json({
-          error:
-            "Токен не валиден! Пароль был обновлен, но при следующем заходе придется вводить данные заново",
+          error: "Токен не валиден!",
         });
       } else {
         pool.query(
@@ -93,7 +92,6 @@ export const getUserByToken = (req, res) => {
             if (!error) {
               res.json({ user: results[0] });
             } else {
-              console.log(error);
               res.status(500).json({ error: error.message });
             }
           }

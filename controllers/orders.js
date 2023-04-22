@@ -6,7 +6,7 @@ export const getAllOrders = (req, res) => {
   console.log(userId);
 
   const query = `SELECT user_orders.id, DATE_FORMAT(date, "%d-%m-%Y") as date, CONCAT(user_clients.first_name, ' ' , user_clients.second_name, ' ', user_clients.third_name) as customerFullName, 
-  products.count as productCount, products.name as productName, products.id as productId, user_clients.id as customerId
+  user_orders.product_count as productCount, products.name as productName, products.id as productId, user_clients.id as customerId
     FROM user_orders INNER JOIN users ON users.id = user_orders.user_id
        INNER JOIN products ON user_orders.product_id = products.id INNER JOIN user_clients ON user_clients.id = user_orders.client_id
        WHERE user_orders.user_id = ${userId};
@@ -35,7 +35,8 @@ export const addOrder = (req, res) => {
       query = `SELECT user_orders.id,  CONCAT(user_clients.first_name, ' ' , user_clients.second_name, ' ', user_clients.third_name) as customerFullName,     
         products.name as productName    FROM user_orders INNER JOIN users ON users.id = user_orders.user_id
            INNER JOIN products ON user_orders.product_id = products.id INNER JOIN user_clients ON user_clients.id = user_orders.client_id
-           WHERE user_orders.user_id = ${userId} AND user_orders.product_count = ${productCount} AND user_orders.client_id = ${customerId}`;
+           WHERE user_orders.user_id = ${userId} AND user_orders.product_count = ${productCount} AND user_orders.product_id = ${productId} AND user_orders.client_id = ${customerId}
+            LIMIT 1`;
 
       pool.query(query, (error, results) => {
         if (!error) {
@@ -80,7 +81,8 @@ export const updateOrder = (req, res) => {
       products.name as productName
       FROM user_orders INNER JOIN users ON users.id = user_orders.user_id
          INNER JOIN products ON user_orders.product_id = products.id INNER JOIN user_clients ON user_clients.id = user_orders.client_id
-         WHERE user_orders.user_id = ${userId} AND user_orders.product_count = ${productCount} AND user_orders.client_id = ${customerId}`;
+         WHERE user_orders.user_id = ${userId} AND user_orders.product_count = ${productCount} AND user_orders.product_id = ${productId}  AND user_orders.client_id = ${customerId}
+          LIMIT 1`;
 
       pool.query(query, (error, results) => {
         if (!error) {
@@ -108,18 +110,17 @@ export const searchOrders = (req, res) => {
   products.count as productCount, products.name as productName, products.id as productId, user_clients.id as customerId
     FROM user_orders INNER JOIN users ON users.id = user_orders.user_id
        INNER JOIN products ON user_orders.product_id = products.id INNER JOIN user_clients ON user_clients.id = user_orders.client_id WHERE users.id = ${userId}) as orders
-       WHERE orders.productName LIKE '%${product ? product : ""}%' AND orders.customerFullName LIKE '%${customer ? customer : ""}%'
+       WHERE orders.productName LIKE '%${
+         product ? product : ""
+       }%' AND orders.customerFullName LIKE '%${customer ? customer : ""}%'
        AND orders.date BETWEEN '${startDate}' AND '${endDate}'`;
 
   pool.query(query, (error, results) => {
     if (!error) {
-      res.json({orders: results});
+      res.json({ orders: results });
     } else {
       console.log(error);
-      res.status(500).json({error: error.message});
+      res.status(500).json({ error: error.message });
     }
   });
-
-
-
 };

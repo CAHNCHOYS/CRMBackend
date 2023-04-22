@@ -46,7 +46,7 @@ export const getProductsCategories = (req, res) => {
 export const updateUserProduct = (req, res) => {
   const { name, count, price, productId, categoryId } = req.body;
   const userId = req.userId;
-
+  
   console.log(userId, "userid");
   pool.query(
     `UPDATE products SET name = '${name}', price = ${price}, category_id = ${categoryId}, count = ${count} WHERE products.id = ${productId}`,
@@ -64,8 +64,6 @@ export const updateUserProduct = (req, res) => {
 export const addUserProduct = (req, res) => {
   const { name, price, categoryId, count } = req.body;
 
-
-
   const userId = req.userId;
 
   pool.query(
@@ -75,7 +73,7 @@ export const addUserProduct = (req, res) => {
       if (!error) {
         const q = `SELECT products.id, categories.name as category
           FROM ((products    INNER JOIN categories ON categories.id = products.category_id) 
-          INNER JOIN users ON users.id = products.user_id)  WHERE products.user_id = ${userId} AND products.name = '${name}'`;
+          INNER JOIN users ON users.id = products.user_id)  WHERE products.user_id = ${userId} AND products.name = '${name}' AND products.count = ${count} LIMIT 1`;
 
         pool.query(q, (error, results) => {
           if (!error) {
