@@ -103,13 +103,15 @@ export const searchClients = (req, res) => {
       SELECT * FROM (SELECT user_clients.id, first_name as firstName, second_name as secondName, third_name as thirdName, CONCAT(user_clients.first_name, ' ', user_clients.second_name, ' ', user_clients.third_name) as fullName, 
         CASE WHEN premium = 1 THEN 'Да' ELSE 'Нет' END as premium, phone FROM user_clients 
       INNER JOIN users on users.id = user_clients.user_id  WHERE users.id = ${userId}) as customers
-       WHERE  customers.fullName LIKE '%${secondName}%' AND customers.premium = ${+premium}`;
+       WHERE  customers.fullName LIKE '%${
+         secondName ? secondName : ""
+       }%' AND customers.premium = ${+premium}`;
   } else {
     q = `
     SELECT * FROM (SELECT user_clients.id, first_name as firstName, second_name as secondName, third_name as thirdName, CONCAT(user_clients.first_name, ' ', user_clients.second_name, ' ', user_clients.third_name) as fullName, 
         CASE WHEN premium = 1 THEN 'Да' ELSE 'Нет' END as premium, phone FROM user_clients 
       INNER JOIN users on users.id = user_clients.user_id  WHERE users.id = ${userId}) as customers
-       WHERE  customers.fullName LIKE '%${secondName}%'`;
+       WHERE  customers.fullName LIKE '%${secondName ? secondName : ""}%'`;
   }
 
   pool.query(q, (error, results) => {
