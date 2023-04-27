@@ -47,19 +47,22 @@ export const addClient = (req, res) => {
     }, ${userId})`,
     (error, results) => {
       if (!error) {
-        const query = `
-        SELECT user_clients.id FROM user_clients 
-        INNER JOIN users on users.id = user_clients.user_id 
-        WHERE users.id = ${userId} AND third_name='${thirdName}' AND second_name='${secondName}' AND phone = '${phone}' LIMIT 1`;
+        console.log(results.insertId);
+        res.json({ customerId: results.insertId });
+        // console.log(results);
+        // const query = `
+        // SELECT user_clients.id FROM user_clients 
+        // INNER JOIN users on users.id = user_clients.user_id 
+        // WHERE users.id = ${userId} AND third_name='${thirdName}' AND second_name='${secondName}' AND phone = '${phone}' LIMIT 1`;
 
-        pool.query(query, (error, results) => {
-          if (!error) {
-            res.json({ customerId: results[0].id });
-          } else {
-            console.log(error);
-            res.status(500).json({ error: error.message });
-          }
-        });
+        // pool.query(query, (error, results) => {
+        //   if (!error) {
+        //     res.json({ customerId: results[0].id });
+        //   } else {
+        //     console.log(error);
+        //     res.status(500).json({ error: error.message });
+        //   }
+        // });
       } else {
         console.log(error);
         res.status(500).json({ error: error.message });

@@ -71,18 +71,7 @@ export const addUserProduct = (req, res) => {
    VALUES ('${name}', '${price}', '${categoryId}', '${userId}', '${count}')`,
     (error, results) => {
       if (!error) {
-        const q = `SELECT products.id, categories.name as category
-          FROM ((products    INNER JOIN categories ON categories.id = products.category_id) 
-          INNER JOIN users ON users.id = products.user_id)  WHERE products.user_id = ${userId} AND products.name = '${name}' AND products.count = ${count} LIMIT 1`;
-
-        pool.query(q, (error, results) => {
-          if (!error) {
-            res.json(results[0]);
-          } else {
-            console.log(error);
-            res.status(500).json({ error: error.message });
-          }
-        });
+         res.json({productId: results.insertId});
       } else {
         console.log(error);
         res.status(500).json({ error: error.message });
