@@ -23,7 +23,7 @@ export const updateAccessToken = (req, res) => {
   const refreshToken = req.cookies["refreshtoken"];
 
   if (!refreshToken) {
-    res.status(401).json({ error: "Вы не авторизированы" });
+    res.status(401).json({ error: "Вы не авторизирован" });
   } else {
     jwt.verify(refreshToken, process.env.JWT_REFRESH_KEY, (err, decoded) => {
       if (!err) {
