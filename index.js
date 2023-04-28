@@ -19,7 +19,7 @@ app.use(json());
 app.use(
   cors({
     credentials: true,
-    origin: ["http://127.0.0.1:5173","https://cahnchoys.github.io/CRMAdminDelpoy"],
+    origin: true,
   })
 );
 app.use(fileUpload());

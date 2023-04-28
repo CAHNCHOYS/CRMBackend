@@ -24,19 +24,19 @@ export const updateAccessToken = (req, res) => {
 
   if (!refreshToken) {
     res.status(401).json({ error: "Вы не авторизированы" });
+  } else {
+    jwt.verify(refreshToken, process.env.JWT_REFRESH_KEY, (err, decoded) => {
+      if (!err) {
+        console.log(decoded);
+        const accessToken = createAccessToken(decoded.id);
+        res.json({ accessToken });
+      } else {
+        res
+          .status(401)
+          .json({ error: "Refresh token истек, авторизация невозможна" });
+      }
+    });
   }
-
-  jwt.verify(refreshToken, process.env.JWT_REFRESH_KEY, (err, decoded) => {
-    if (!err) {
-      console.log(decoded);
-      const accessToken = createAccessToken(decoded.id);
-      res.json({ accessToken });
-    } else {
-      res
-        .status(401)
-        .json({ error: "Refresh token истек, авторизация невозможна" });
-    }
-  });
 };
 
 export const sendRefreshToken = (res, refreshToken) => {
