@@ -1,9 +1,7 @@
-import  mysql2 from "mysql2";
-import dotenv from 'dotenv';
+import mysql2 from "mysql2";
+import dotenv from "dotenv";
 
 dotenv.config();
-
-
 
 // Create the connection pool. The pool-specific settings are the defaults
 const pool = mysql2.createPool({
@@ -17,8 +15,5 @@ const pool = mysql2.createPool({
   idleTimeout: 60000, // idle connections timeout, in milliseconds, the default value 60000
   queueLimit: 0,
 });
-
-
-
 
 export { pool };

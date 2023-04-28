@@ -2,7 +2,6 @@ import { pool } from "../database/index.js";
 
 export const getAllUserProducts = (req, res) => {
   const user_id = req.params.user_id;
-  console.log("userID", user_id);
   const q = `SELECT products.id, products.name, products.price, products.count, categories.name as category, categories.id as categoryId
   FROM ((products    INNER JOIN categories ON categories.id = products.category_id) 
   INNER JOIN users ON users.id = products.user_id)  WHERE products.user_id = ${+user_id}`;
@@ -45,9 +44,8 @@ export const getProductsCategories = (req, res) => {
 
 export const updateUserProduct = (req, res) => {
   const { name, count, price, productId, categoryId } = req.body;
-  const userId = req.userId;
+
   
-  console.log(userId, "userid");
   pool.query(
     `UPDATE products SET name = '${name}', price = ${price}, category_id = ${categoryId}, count = ${count} WHERE products.id = ${productId}`,
     (error, results) => {
@@ -64,6 +62,7 @@ export const updateUserProduct = (req, res) => {
 export const addUserProduct = (req, res) => {
   const { name, price, categoryId, count } = req.body;
 
+  console.log(req.cookies,"cookie");
   const userId = req.userId;
 
   pool.query(

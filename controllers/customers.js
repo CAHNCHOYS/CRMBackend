@@ -3,6 +3,7 @@ import { pool } from "../database/index.js";
 export const getAllClients = (req, res) => {
   const userId = req.params.user_id;
 
+  console.log(req.cookies, "Все куки");
   const query = `
        SELECT user_clients.id, first_name as firstName, second_name as secondName, third_name as thirdName, 
        CONCAT(user_clients.first_name, ' ', user_clients.second_name, ' ', user_clients.third_name) as fullName, CASE WHEN premium = 1 THEN 'Да' ELSE 'Нет' END as premium,
@@ -20,7 +21,7 @@ export const getAllClients = (req, res) => {
 };
 
 export const deleteClient = (req, res) => {
-  const customerId = req.params.client_id;
+  const customerId = req.params.customer_id;
 
   pool.query(
     `DELETE from user_clients WHERE user_clients.id = ${customerId}`,
@@ -51,8 +52,8 @@ export const addClient = (req, res) => {
         res.json({ customerId: results.insertId });
         // console.log(results);
         // const query = `
-        // SELECT user_clients.id FROM user_clients 
-        // INNER JOIN users on users.id = user_clients.user_id 
+        // SELECT user_clients.id FROM user_clients
+        // INNER JOIN users on users.id = user_clients.user_id
         // WHERE users.id = ${userId} AND third_name='${thirdName}' AND second_name='${secondName}' AND phone = '${phone}' LIMIT 1`;
 
         // pool.query(query, (error, results) => {

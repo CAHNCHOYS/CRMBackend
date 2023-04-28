@@ -2,8 +2,12 @@ import { pool } from "../database/index.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import path from "path";
-
 import dotenv from "dotenv";
+import {
+  createAccessToken,
+  createRefreshToken,
+  sendRefreshToken,
+} from "./tokens.js";
 
 dotenv.config();
 
@@ -42,7 +46,6 @@ export const registerUser = (req, res) => {
 
 export const loginUser = (req, res) => {
   const { email, password } = req.body;
-  console.log(req.body);
 
   pool.query(
     `SELECT id, name, email, password, country, avatar from users WHERE email = '${email}' `,
@@ -50,8 +53,7 @@ export const loginUser = (req, res) => {
       if (!error) {
         if (results.length === 0) {
           res.status(404).json({
-            error: `Пользователель с введенным 
-          емайлом ${email} не найден!`,
+            error: `Пользователель с введенным  емайлом ${email} не найден!`,
           });
         } else {
           let user = results[0];
@@ -61,10 +63,13 @@ export const loginUser = (req, res) => {
               .status(400)
               .json({ error: "Неверный пароль, повторите попытку!" });
           } else {
-            let token = jwt.sign({ id: user.id }, process.env.JWT_KEY, {
-              expiresIn: "2h",
-            });
-            res.json({ user, token });
+            const accessToken = createAccessToken(user.id);
+
+            const refreshToken = createRefreshToken(user.id);
+            console.log("refresh", refreshToken);
+            console.log(accessToken, "accessToken");
+            sendRefreshToken(res, refreshToken);
+            res.json({ user, accessToken });
           }
         }
       } else {
@@ -76,31 +81,18 @@ export const loginUser = (req, res) => {
 };
 
 export const getUserByToken = (req, res) => {
-  try {
-    const token = req.headers["authorization"].split(" ")[1];
+  const userId = req.userId;
 
-    console.log(token);
-    jwt.verify(token, process.env.JWT_KEY, function (err, decoded) {
-      if (err) {
-        res.status(401).json({
-          error: "Токен не валиден!",
-        });
+  pool.query(
+    `SELECT id, name, email, password, country, avatar from users WHERE users.id = '${userId}'`,
+    (error, results) => {
+      if (!error) {
+        res.json({ user: results[0] });
       } else {
-        pool.query(
-          `SELECT id, name, email, password, country, avatar from users WHERE users.id = '${decoded.id}'`,
-          (error, results) => {
-            if (!error) {
-              res.json({ user: results[0] });
-            } else {
-              res.status(500).json({ error: error.message });
-            }
-          }
-        );
+        res.status(500).json({ error: error.message });
       }
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+    }
+  );
 };
 
 export const updatePublicUserInfo = (req, res) => {
@@ -111,7 +103,6 @@ export const updatePublicUserInfo = (req, res) => {
     const avatarName = avatar.name;
 
     const insertName = `user${userId}` + avatarName;
-    console.log(path.resolve(__dirname, "Images", "UserAvatars"));
 
     avatar.mv(
       path.resolve(__dirname, "Images", "UserAvatars", `user${userId}`) +
@@ -170,6 +161,13 @@ export const updateUserPassword = (req, res) => {
     }
   );
 };
+
+
+export const logOut = (req, res)=>{
+  res.clearCookie('refreshtoken');
+  res.send('logout successful');
+}
+
 
 export const deleteUserAccount = (req, res) => {
   const user_id = req.params.user_id;

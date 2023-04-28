@@ -3,7 +3,6 @@ import { pool } from "../database/index.js";
 export const getAllOrders = (req, res) => {
   const userId = req.params.user_id;
 
-  console.log(userId);
 
   const query = `SELECT user_orders.id, DATE_FORMAT(date, "%d-%m-%Y") as date, CONCAT(user_clients.first_name, ' ' , user_clients.second_name, ' ', user_clients.third_name) as customerFullName, 
   user_orders.product_count as productCount, products.name as productName, products.id as productId, user_clients.id as customerId
@@ -24,7 +23,6 @@ export const getAllOrders = (req, res) => {
 
 export const addOrder = (req, res) => {
   const userId = req.userId;
-  console.log(req.body);
   const { customerId, productId, productCount, date } = req.body;
 
   let query = `INSERT INTO user_orders (client_id, user_id, product_id,product_count, date)
@@ -103,8 +101,6 @@ export const searchOrders = (req, res) => {
   const userId = req.params.user_id;
 
   const { startDate, endDate, product, customer } = req.query;
-  console.log(req.query);
-  console.log(userId);
 
   const query = `SELECT orders.*, DATE_FORMAT(orders.date, "%d-%m-%Y") as date FROM (SELECT user_orders.id, user_orders.date, CONCAT(user_clients.first_name, ' ' , user_clients.second_name, ' ' , user_clients.third_name) as customerFullName, 
   products.count as productCount, products.name as productName, products.id as productId, user_clients.id as customerId
